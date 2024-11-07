@@ -2,9 +2,9 @@
 
 
 ### Objective
-Cross-border payments are crucial for global commerce but often require numerous intermediaries like banks and clearinghouses, resulting in slow transactions, high fees, and limited transparency. This complexity impacts both individuals and businesses seeking efficient international transfers.
+Cross-border payments are essential to global commerce but often face delays and high costs due to intermediary banks. When two banks have a direct relationship, transfers are straightforward; otherwise, a chain of “correspondent” banks may be needed, adding complexity and fees.
 
-With recent advancements in technology, there’s an opportunity to transform this system. This project aims to create a blockchain-based solution that enables fast, low-cost, and transparent cross-border payments with minimal intermediaries. Leveraging blockchain’s decentralized infrastructure, this system can offer near-instant transactions, reducing both the time and cost of traditional payment methods.
+Advances in communication and expanded banking networks have helped reduce these delays. Currently, 84% of global payments are either direct or involve just one intermediary. According to Thierry Chilosi, Chief Strategy Officer at Swift, 89% of payments on the Swift network reach the destination bank within an hour, with half reaching the beneficiary account in under five minutes.
 
 ### Part 1: Direct Bank-to-Bank Payments
 
