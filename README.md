@@ -2,7 +2,9 @@
 
 
 ### Objective
-Traditional cross-border payments often require multiple intermediaries, slowing down transactions and increasing costs. However, with advances in communications technology and banking relationships, cross-border payments are now significantly faster. The objective of this project is to develop a solution to enable efficient, near-instant global payments.
+Cross-border payments are crucial for global commerce but often require numerous intermediaries like banks and clearinghouses, resulting in slow transactions, high fees, and limited transparency. This complexity impacts both individuals and businesses seeking efficient international transfers.
+
+With recent advancements in technology, there’s an opportunity to transform this system. This project aims to create a blockchain-based solution that enables fast, low-cost, and transparent cross-border payments with minimal intermediaries. Leveraging blockchain’s decentralized infrastructure, this system can offer near-instant transactions, reducing both the time and cost of traditional payment methods.
 
 ### Part 1: Direct Bank-to-Bank Payments
 
