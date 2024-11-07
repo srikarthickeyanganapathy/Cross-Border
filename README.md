@@ -1,4 +1,4 @@
-# web3-problem-statement-2 : Blockchain for Cross-Border Payments with Minimal Intermediaries
+Blockchain for Cross-Border Payments with Minimal Intermediaries
 
 
 ### Objective
@@ -37,4 +37,5 @@ Traditional cross-border payments often require multiple intermediaries, slowing
 3. **Global Payments Dashboard**  
    - A user interface allowing real-time monitoring and reporting of transaction progress across borders.
 
-This project aims to simplify cross-border payments, offering a more efficient and accessible global payment system.
+---
+### Note: This serves only as a reference example. Innovative ideas and unique implementation techniques are highly encouraged and warmly welcomed!
