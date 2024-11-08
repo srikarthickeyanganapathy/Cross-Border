@@ -167,7 +167,7 @@ app.post('/api/initiate-payment', async (req, res) => {
   }
 
   try {
-    const sender = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY).address;
+    const sender = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY1).address;
 
     const tx = contract.methods.initiatePayment(receiver, web3.utils.toWei(amount, 'ether'));
     console.log("Amount in Wei:", web3.utils.toWei(amount, 'ether'));
