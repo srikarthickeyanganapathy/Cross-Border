@@ -23,6 +23,18 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+/* This will set the background image and ensure it covers the entire screen */
+.background {
+  min-height: 100vh; /* Full screen height */
+  position: relative; /* To allow elements like the navbar to be positioned above */
+}
+
+/* If you want the navbar to stay above the background image */
+.navbar {
+  position: relative;
+  z-index: 10;
+  background-color: #1e40af;
+}
 
 .App-link {
   color: #61dafb;

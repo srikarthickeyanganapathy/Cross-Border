@@ -1,50 +1,65 @@
-// src/components/TransactionHistory.js
 import React, { useEffect, useState } from 'react';
-import { getTransactions } from '../api';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import axios from 'axios';
 
-function TransactionHistory() {
+const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
+  const API_BASE_URL = 'http://localhost:5000';
+
+  const fetchTransactions = async () => {
+    try {
+      console.log('Fetching transactions...'); // Debug log
+      const response = await axios.get(`${API_BASE_URL}/api/transactions`);
+      setTransactions(response.data);
+      console.log('Fetched transactions:', response.data); // Debug log
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await getTransactions();
-        setTransactions(response.data);
-      } catch (error) {
-        console.error('Failed to fetch transactions:', error);
-      }
-    };
-
     fetchTransactions();
   }, []);
 
   return (
-    <div>
-      <h2>Transaction History</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Sender</th>
-            <th>Receiver</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Transaction Hash</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((transaction) => (
-            <tr key={transaction.transactionHash}>
-              <td>{transaction.sender}</td>
-              <td>{transaction.receiver}</td>
-              <td>{transaction.amount}</td>
-              <td>{transaction.status}</td>
-              <td>{transaction.transactionHash}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Container maxWidth="md">
+      <Typography variant="h5" gutterBottom>
+        Transaction History
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Sender</TableCell>
+              <TableCell>Receiver</TableCell>
+              <TableCell>Amount (ETH)</TableCell>
+              <TableCell>Transaction Hash</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactions.length > 0 ? (
+              transactions.map((txn, index) => (
+                <TableRow key={index}>
+                  <TableCell>{txn.sender}</TableCell>
+                  <TableCell>{txn.receiver}</TableCell>
+                  <TableCell>{txn.amount}</TableCell>
+                  <TableCell>{txn.transactionHash}</TableCell>
+                  <TableCell>{txn.status}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No transactions available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
-}
+};
 
 export default TransactionHistory;

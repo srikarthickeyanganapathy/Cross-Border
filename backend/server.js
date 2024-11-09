@@ -11,7 +11,7 @@ app.use(cors());
 
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
@@ -21,7 +21,7 @@ const contractABI = require('./contractABI.json');
 const contractAddress = process.env.CONTRACT_ADDRESS;
 const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-// Listen for events from the contract
+// Listen for PaymentInitiated event
 contract.events.PaymentInitiated({}, async (error, event) => {
   if (error) {
     console.error('Error in PaymentInitiated event', error);
@@ -29,32 +29,44 @@ contract.events.PaymentInitiated({}, async (error, event) => {
   }
 
   const { transactionId, sender, receiver, amount } = event.returnValues;
+  
   const payment = new Payment({
     sender,
     receiver,
     amount: web3.utils.fromWei(amount, 'ether'),
     transactionHash: event.transactionHash,
     status: 'Initiated',
+    timestamp: new Date().toISOString(),
   });
 
-  await payment.save();
-  console.log(`PaymentInitiated event captured for TransactionId: ${transactionId}`);
+  try {
+    await payment.save();
+    console.log(`PaymentInitiated event captured for TransactionId: ${transactionId}`);
+  } catch (err) {
+    console.error('Error saving PaymentInitiated event to MongoDB:', err);
+  }
 });
 
+// Listen for PaymentCompleted event
 contract.events.PaymentCompleted({}, async (error, event) => {
   if (error) {
     console.error('Error in PaymentCompleted event', error);
     return;
   }
 
-  const { transactionId, timestamp } = event.returnValues;
+  const { transactionId } = event.returnValues;
   const payment = await Payment.findOne({ transactionHash: event.transactionHash });
 
   if (payment) {
     payment.status = 'Completed';
-    payment.timestamp = timestamp;
-    await payment.save();
-    console.log(`PaymentCompleted event captured for TransactionId: ${transactionId}`);
+    payment.timestamp = new Date().toISOString(); // Update timestamp to completion time
+    
+    try {
+      await payment.save();
+      console.log(`PaymentCompleted event captured for TransactionId: ${transactionId}`);
+    } catch (err) {
+      console.error('Error updating PaymentCompleted event in MongoDB:', err);
+    }
   }
 });
 
@@ -67,17 +79,11 @@ app.post('/api/initiate-payment', async (req, res) => {
   }
 
   try {
-    // Get the sender address from the private key
     const sender = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY1).address;
-
-    // Create the transaction to call the smart contract
     const tx = contract.methods.initiatePayment(receiver, web3.utils.toWei(amount, 'ether'));
-
-    // Estimate gas for the transaction
     const gas = await tx.estimateGas({ from: sender });
     const data = tx.encodeABI();
 
-    // Define the transaction data
     const txData = {
       from: sender,
       to: contractAddress,
@@ -87,23 +93,20 @@ app.post('/api/initiate-payment', async (req, res) => {
       maxFeePerGas: web3.utils.toWei('50', 'gwei'),
     };
 
-    // Sign and send the transaction
     const signedTx = await web3.eth.accounts.signTransaction(txData, process.env.PRIVATE_KEY1);
     const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 
-    // Save transaction in MongoDB with the transaction receipt details
     const payment = new Payment({
       sender,
       receiver,
       amount,
-      transactionHash: receipt.transactionHash, // Store the transaction hash
-      status: 'Initiated', // Mark as 'Initiated' for now
-      timestamp: receipt.timestamp,
+      transactionHash: receipt.transactionHash,
+      status: 'Initiated',
+      timestamp: new Date().toISOString(),
     });
 
     await payment.save();
     res.json({ message: 'Payment initiated', transactionHash: receipt.transactionHash });
-
   } catch (err) {
     console.error('Error initiating payment:', err);
     res.status(500).json({ error: 'Failed to initiate payment' });
