@@ -4,16 +4,15 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid
 } from '@mui/material';
 import axios from 'axios';
+import { ethers } from 'ethers';
 
 const App = () => {
   const [receiverAddress, setReceiverAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [transactions, setTransactions] = useState([]);
 
-  // Base URL of your backend
   const API_BASE_URL = 'http://localhost:5000';
 
-  // Fetch all transactions from backend
   const fetchTransactions = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/transactions`);
@@ -27,15 +26,42 @@ const App = () => {
     fetchTransactions();
   }, []);
 
-  // Handle payment
+  const connectToMetaMask = async () => {
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []); // Request MetaMask account
+      const signer = provider.getSigner();
+      return signer;
+    } else {
+      alert("Please install MetaMask!");
+      return null;
+    }
+  };
+
   const handleSendPayment = async () => {
     if (!receiverAddress || !amount) return alert('Please fill in all fields');
 
     try {
+      const signer = await connectToMetaMask();
+      if (!signer) return;
+
+      const amountInWei = ethers.utils.parseEther(amount);
+      const tx = {
+        to: receiverAddress,
+        value: amountInWei,
+      };
+
+      // Send the payment transaction via MetaMask
+      const transactionResponse = await signer.sendTransaction(tx);
+      await transactionResponse.wait(); // Wait for the transaction to be mined
+
+      // Post the transaction data to the backend
       const response = await axios.post(`${API_BASE_URL}/api/initiate-payment`, {
         receiver: receiverAddress,
-        amount
+        amount,
       });
+
+      console.log('Payment initiated:', response.data);
 
       alert('Payment successful!');
       fetchTransactions();
@@ -46,7 +72,7 @@ const App = () => {
       alert('Failed to send payment');
     }
   };
-
+  
   return (
     <Container maxWidth="md">
       <Typography variant="h4" gutterBottom align="center">
